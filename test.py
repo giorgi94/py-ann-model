@@ -2,7 +2,7 @@ import os
 import sys
 import numpy as np
 
-from ann_model import ANNetwork, sigmoid
+from ann_models import ANNetwork, sigmoid
 
 
 np.set_printoptions(precision=16)
@@ -12,7 +12,7 @@ N = ANNetwork()
 
 N.activation = sigmoid
 
-N.learning_rate = 0.25
+N.learning_rate = 0.05
 
 tests = [
     (1, [0, 0, 1]),
@@ -29,13 +29,13 @@ layers = [1, 20, 10, 3]
 
 
 N.load_layers(layers)
-# N.load_random_weights()
+N.load_random_weights()
 
 N.load()
 
-N.training(table[:], max_steps=20000, each=500)
+N.training(table[:], max_steps=200, each=1)
 
-# N.dump()
+N.dump()
 
 
 print("\ncheck:")
