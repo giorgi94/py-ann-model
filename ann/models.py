@@ -5,6 +5,8 @@ from typing import List, Callable
 import numpy as np
 from numpy import ndarray
 
+from .activations import sigmoid
+
 
 class Layer:
 
@@ -15,12 +17,12 @@ class Layer:
         self.out: int = out
         self.activation: Callable = activation
 
-        self.Y: ndarray = None
+        self.Z: ndarray = None
         self.weight: ndarray = None
         self.bias: ndarray = None
 
-    def activation_prime(self, x):
-        return np.diagflat(self.activation(x, prime=True))
+    def activation_prime(self):
+        return np.diagflat(self.activation(self.Z, prime=True))
 
     def load_random(self):
         n0, n1 = self.inp, self.out
@@ -28,30 +30,35 @@ class Layer:
         self.weight = 2 * np.random.random((n1, n0)) - 1
         self.bias = 2 * np.random.random((n1, 1)) - 1
 
+    def output(self):
+        if self.Z is None:
+            return None
+        return self.activation(self.Z)
+
     def forward(self, X):
         w = self.weight
         b = self.bias
 
-        self.Y = self.activation(w.dot(X) + b)
-        return self.Y
+        self.Z = w.dot(X) + b
+        return self.activation(self.Z)
 
-    def backward(self, Y, X=None):
-        delta = Y - self.Y
+    def backward(self, Y, X):
+        delta = self.output() - Y
+        act = self.activation_prime()
 
-        b_delta = self.learning_rate * self.activation_prime(Y).dot(delta)
+        d = self.learning_rate * act.dot(delta)
 
-        self.bias -= b_delta
-        self.weight -= b_delta.dot(X.T)
+        dX = self.weight.T.dot(d)
+        self.bias -= d
+        self.weight -= d.dot(X.T)
 
-        if X is not None:
-            return self.weight.T.dot(b_delta)
-        return None
+        return X - dX
 
 
 class Model:
     def __init__(self):
-        self.biases: List[ndarray] = []
-        self.weights: List[ndarray] = []
+        self.biases: list = []
+        self.weights: list = []
         self.layers: List[Layer] = []
 
     def add_layer(self, inp, out, activation):
@@ -69,27 +76,22 @@ class Model:
 
         return x
 
+    def output(self):
+        return self.layers[-1].output()
+
     def backward(self, X, Y):
+        layers_len = len(self.layers)
+        y = Y.copy()
 
-        for _ in range(500):
-            x = X.copy()
-            y = Y.copy()
+        for i, layer in enumerate(self.layers[::-1]):
+            j = layers_len - i - 1
 
-            self.forward(x)
+            if j == 0:
+                x = X.copy()
+            else:
+                x = self.layers[j - 1].output()
 
-            l0 = self.layers[0]
-            l1 = self.layers[1]
-            l2 = self.layers[2]
-
-            y = l2.backward(y, l1.Y)
-            y = l1.backward(y, l0.Y)
-            l0.backward(y, x)
-            # print(y)
-
-        # print(x)
-
-        # self.layers[-1].backward(self.layers[-2].Y, Y)
-        # self.layers[-2].backward(self.layers[-3].Y, self.layers[-1].Y)
+            y = layer.backward(y, x)
 
 
 class ANNetworkBase:
