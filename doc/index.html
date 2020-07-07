@@ -1,48 +1,274 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    />
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_HTML-full">
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_HTML-full"></script>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            MathJax.Hub.Config({
-                TeX: {
-                    equationNumbers: {
-                        autoNumber: "AMS",
-                    },
-                },
-                tex2jax: {
-                    inlineMath: [
-                        ["$", "$"],
-                        ["\\(", "\\)"],
-                    ],
-                },
-            });
-
-            MathJax.Hub.Queue(function () {
-                // let pages = new Pages(pageOpts);
-                // pages.init();
-                // window.pages = pages;
-            });
+      document.addEventListener("DOMContentLoaded", function () {
+        MathJax.Hub.Config({
+          TeX: {
+            equationNumbers: {
+              autoNumber: "AMS",
+            },
+          },
+          tex2jax: {
+            inlineMath: [
+              ["$", "$"],
+              ["\\(", "\\)"],
+            ],
+          },
         });
+
+        MathJax.Hub.Queue(function () {
+          // let pages = new Pages(pageOpts);
+          // pages.init();
+          // window.pages = pages;
+        });
+      });
     </script>
-</head>
+  </head>
 
-<body>
+  <body>
+    <div class="container">
+      <section>
+        <h3 class="mt-2 mb-4">Artificial Neural Network</h3>
+
+        <p>Suppose we have two finite sets of vectors in $X$ and $Y$ </p>
+
+        \[ X = \left\{
+        \left( x_1^{j}, x_2^{j},\dots, x_n^{j} \right) : 1 \le j \le N_{x},~
+        x_{i}^{j} \in [0,1] \right\} \] \[ Y = \left\{ \left( y_1^{j},
+        y_2^{j},\dots, y_m^{j} \right) : 1 \le j \le N_{y},~ y_{i}^{j} \in [0,1]
+        \right\} \]
+
+        <p>and there exists surjective mapping</p>
+
+        \[ f: X\to Y \]
+
+        <p>
+          such that for all $x\in X$ we know corresponding $f(x)=y\in Y$, then
+          we can construct $\hat{f}$ function, which will approximate $f$
+          function. For simplicity we'll be using $X$ and $Y$ as matrices
+        </p>
+
+        \[ X = \begin{bmatrix} x_{1}^1 & x_{1}^2 & \cdots & x_{1}^{N_x} \\
+        x_{2}^1 & x_{2}^2 & \cdots & x_{2}^{N_x} \\ \vdots & \vdots & \ddots &
+        \vdots \\ x_{n}^1 & x_{n}^2 & \cdots & x_{n}^{N_x} \\ \end{bmatrix}
+        ~~\textit{and}~~ Y = \begin{bmatrix} y_{1}^1 & y_{1}^2 & \cdots &
+        y_{1}^{N_y} \\ y_{2}^1 & y_{2}^2 & \cdots & y_{2}^{N_y} \\ \vdots &
+        \vdots & \ddots & \vdots \\ y_{m}^1 & y_{m}^2 & \cdots & y_{m}^{N_y} \\
+        \end{bmatrix} \]
+
+        <p>
+          Let $X_{j}$ and $Y_{j}$ be corresponding columns, then for all $i$,
+          there exists $j$, such that
+        </p>
+
+        \[ f(X_{i}) = Y_{j} \]
+
+        <p>Here first and last layers are inputs and output and number of neurons depend on vector size, while <i>hidden layers</i> are chosen. Suppose we have $L+1$ layers, with $n_{l}$ neurons in $l$ layer.</p>
+
+        <subsection>
+            <h4 class="mt-2 mb-4">Forward Propagation</h4>
 
 
-    \[
-    a^2+b^2=c^2
-    \]
+All nodes are connected with each other. Each connection has weight and each neuron, expect inputs, have biases. To get values of neurons in layer $l+1$, we need to do following opertaions
+\[
+    z^{(l)} =
+    \begin{bmatrix}
+        z_{1}^{(l)} \\
+        z_{2}^{(l)} \\
+        \vdots \\
+        z_{n_{l}}^{(l)}
+    \end{bmatrix} =
+    \begin{bmatrix}
+        w_{11}^{(l)} & w_{12}^{(l)} & \cdots & w_{1n_{l-1}}^{(l)} \\
+        w_{21}^{(l)} & w_{22}^{(l)} & \cdots & w_{2n_{l-1}}^{(l)} \\
+        \vdots & \vdots & \ddots & \vdots \\
+        w_{n_{l}1}^{(l)} & w_{n_{l}2}^{(l)} & \cdots & w_{n_{l}n_{l-1}}^{(l)} \\
+    \end{bmatrix} \times
+    \begin{bmatrix}
+        a_{1}^{(l-1)} \\
+        a_{2}^{(l-1)} \\
+        \vdots \\
+        a_{n_{l-1}}^{(l-1)}
+    \end{bmatrix} +
+    \begin{bmatrix}
+        b_{1}^{(l)} \\
+        b_{2}^{(l)} \\
+        \vdots \\
+        b_{n_{l}}^{(l)}
+    \end{bmatrix}
+    = w^{(l)} a^{(l-1)} + b^{(l)}
+\]
 
-</body>
+\noindent
+and by activation function $\sigma$, we have
 
+\[
+    a^{(l)} =
+    \begin{bmatrix}
+       a_{1}^{(l)} \\[5pt]
+       a_{2}^{(l)} \\[5pt]
+        \vdots \\[5pt]
+       a_{n_{l}}^{(l)}
+    \end{bmatrix} =
+    \begin{bmatrix}
+       \sigma\left( z_{1}^{(l)} \right)\\[5pt]
+       \sigma\left( z_{2}^{(l)} \right)\\[5pt]
+        \vdots \\[5pt]
+       \sigma\left( z_{n_{l}}^{(l)} \right)
+    \end{bmatrix}
+    = \sigma \left( z^{(l)} \right), \quad
+    a^{(0)} = X = \begin{bmatrix}
+       x_{1} \\[5pt]
+       x_{2} \\[5pt]
+        \vdots \\[5pt]
+       x_{n_{0}}
+    \end{bmatrix}, \quad a^{(L)} = \hat{Y} = \begin{bmatrix}
+       \hat{y}_{1} \\[5pt]
+       \hat{y}_{2} \\[5pt]
+        \vdots \\[5pt]
+       \hat{y}_{n_{L}}
+    \end{bmatrix}
+\]
+
+\noindent
+Here we take activation function
+\[
+    \sigma \left( x \right) = \frac{1}{1+e^{-x}}
+\]
+which maps $\mathbb{R}$ to $(0,1)$, and its derivitive is
+\[
+    \sigma' \left( x \right) = \sigma \left( x \right)
+    \left( 1 - \sigma \left( x \right) \right)
+\]
+
+</subsection>
+
+<subsection>
+
+<h4 class="mt-2 mb-4">Backward Propagation</h4>
+
+As we can see from \textit{Forward Propagation}, artificial neural network is continuous multidimensional function
+\[
+    f: X \to Y, \quad \hat{f}: X \to \hat{Y}, \quad \hat{f} \approx f
+\]
+Output of the function depends on weights and biases, so we need to adjust them. Since our function is divided into layers, we have cost function on each of them
+\[
+    C_{0} = \frac{1}{2} \left\| \hat{y} - y \right\|^2 = \frac{1}{2} \sum_{j} \left( \hat{y}_{j} - y_{j} \right)^2, \quad
+    C_{k} = \frac{1}{2} \left\| a^{(L-k)} - \tilde{a}^{(L-k)} \right\|^2 =
+    \frac{1}{2} \left\| \delta^{(L-k)} \right\|^2, \quad
+    C =  \sum_{k=0}^{L-1} C_{k}
+\]
+$C$ function depends on $w_{jk}^{(l)}$ and $b_{j}^{(l)}$ parameters and by tilde symbol we denote that it is corrected version. Our goal is to minimize cost function, and for this we use \textit{gradient descent} method. For this we need to calculate partial derivatives.
+
+In output layer we have following equations
+\begin{align}
+a_{j}^{(L)} &= \sigma \left( z_{j}^{(L)} \right) \\
+z_{j}^{(L)} &= \sum_{k=1}^{n_{L-1}} w_{jk}^{(L)} a_{k}^{(L-1)} + b_{j}^{(L)} \\
+C_{0} &= \frac{1}{2} \sum_{j=1}^{n_{L}} \left( a_{j}^{(L)} - y_{j} \right)^2
+\end{align}
+And by chain rule we get following
+\[
+    \frac{\partial C_{0}}{\partial w_{jk}^{(L)}} =
+    \frac{\partial z_{j}^{(L)}}{\partial w_{jk}^{(L)}}
+    \frac{\partial a_{j}^{(L)}}{\partial z_{j}^{(L)}}
+    \frac{\partial C_{0}}{\partial a_{j}^{(L)}} =
+    a_{k}^{(L-1)} \sigma' \left( z_{j}^{(L)} \right)
+    \left( a_{j}^{(L)} - y_{j} \right) =
+    a_{k}^{(L-1)} \sigma' \left( z_{j}^{(L)} \right)\delta_{j}^{(L)}
+\]
+\[
+    \frac{\partial C_{0}}{\partial b_{j}^{(L)}} =
+    \frac{\partial z_{j}^{(L)}}{\partial b_{j}^{(L)}}
+    \frac{\partial a_{j}^{(L)}}{\partial z_{j}^{(L)}}
+    \frac{\partial C_{0}}{\partial a_{j}^{(L)}} =
+    \sigma' \left( z_{j}^{(L)} \right)\delta_{j}^{(L)}
+\]
+\[
+    \frac{\partial C_{0}}{\partial a_{k}^{(L-1)}} =
+    \sum_{j=1}^{n_{L}}
+    \frac{\partial z_{j}^{(L)}}{\partial a_{k}^{(L-1)}}
+    \frac{\partial a_{j}^{(L)}}{\partial z_{j}^{(L)}}
+    \frac{\partial C_{0}}{\partial a_{j}^{(L)}} =
+    \sum_{j=1}^{n_{L}}
+    w_{jk}^{(L)} \sigma' \left( z_{j}^{(L)} \right) \delta_{j}^{(L)}
+\]
+If we rewrite it in matrix form, we get
+\[
+    \frac{\partial C_{0}}{\partial w^{(L)}} =
+    \left(  \frac{\partial C_{0}}{\partial w_{jk}^{(L)}} \right)_{n_{L}\times n_{L-1}}=
+    \left( a_{k}^{(L-1)} \sigma' \left( z_{j}^{(L)} \right)\delta_{j}^{(L)}  \right)_{n_{L}\times n_{L-1}}
+    = \sigma' \left( z^{(L)} \right)\delta^{(L)} \left(  a^{(L-1)} \right) ^T
+\]\[
+    \frac{\partial C_{0}}{\partial b^{(L)}} =
+    \left(  \frac{\partial C_{0}}{\partial b_{j}^{(L)}} \right)_{n_{L}\times 1} =
+    \sigma' \left( z^{(L)} \right)\delta^{(L)}
+\]\[
+    \frac{\partial C_{0}}{\partial a^{(L-1)}} =
+    \left(  \frac{\partial C_{0}}{\partial a_{k}^{(L-1)}} \right)_{n_{L-1}\times 1}=
+    \left(  \sum_{j=1}^{n_{L}} w_{jk}^{(L)} \sigma' \left( z_{j}^{(L)} \right) \delta_{j}^{(L)} \right)_{n_{L-1}\times 1}=
+    \left(  w^{(L)} \right)^T \sigma' \left( z^{(L)} \right)\delta^{(L)}
+\]
+where $\sigma'(z^{(L)})$ is diagonal matrix
+\[
+    \sigma'(z^{(l)}) = \begin{bmatrix}
+        \sigma' \left( z_1^{(l)} \right)  & 0 & \cdots & 0 \\
+        0 & \sigma' \left( z_2^{(l)} \right) & \cdots & 0 \\
+        \vdots & \vdots & \ddots & \vdots \\
+        0 & 0 & \cdots &\sigma' \left( z_{n_{l}}^{(l)} \right) \\
+    \end{bmatrix}
+\]
+Now we have formulas for backward propagation, and since $\tilde{a}^{(L)}=Y$ and $a^{(L)}=\hat{Y}$, we can simply generalize is for $l$ layer
+\begin{align}
+\delta^{(l)} &= a^{(l)} - \tilde{a}^{(l)}\\[5pt]
+\frac{\partial C_{L-l}}{\partial w^{(l)}} &= \sigma' \left( z^{(l)} \right)\delta^{(l)} \left(  a^{(l-1)} \right) ^T \\[5pt]
+\frac{\partial C_{L-l}}{\partial b^{(l)}} &= \sigma' \left( z^{(l)} \right)\delta^{(l)} \\[5pt]
+\frac{\partial C_{L-l}}{\partial a^{(l-1)}} &= \left(  w^{(l)} \right)^T \sigma' \left( z^{(l)} \right)\delta^{(l)}
+\end{align}
+
+\noindent
+From here we can choose algorithms for finding local minimum. Let's take small $0<\gamma\le1$ and write
+\begin{align*}
+\tilde{w}^{(l)} &= w^{(l)} - \gamma \frac{\partial C_{L-l}}{\partial w^{(l)}}\\[5pt]
+\tilde{b}^{(l)} &= b^{(l)} - \gamma \frac{\partial C_{L-l}}{\partial b^{(l)}}\\[5pt]
+\tilde{a}^{(l-1)} &= a^{(l-1)} - \gamma \frac{\partial C_{L-l}}{\partial a^{(l-1)}}
+\end{align*}
+
+\noindent
+So, we have $a^{(0)} = X$, $\delta^{(L)} = a^{(L)} - Y$ and
+
+\begin{align*}
+\delta b^{(l)} &= \gamma \sigma' \left( z^{(l)} \right)\delta^{(l)}\\[5pt]
+\delta^{(l-1)} &= \left(  w^{(l)} \right)^T \delta b^{(l)}\\[5pt]
+\tilde{b}^{(l)} &= b^{(l)} - \delta b^{(l)} \\[5pt]
+\tilde{w}^{(l)} &= w^{(l)} - \delta b^{(l)}  \left(  a^{(l-1)} \right)^T\\[5pt]
+\end{align*}
+
+
+
+
+
+
+
+
+
+        </subsection>
+
+
+
+
+      </section>
+    </div>
+  </body>
 </html>
