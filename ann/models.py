@@ -87,6 +87,10 @@ class Model:
 
         return x
 
+    def train(self, X, Y):
+        self.forward(X)
+        self.backward(X, Y)
+
     def output(self):
         return self.layers[-1].output()
 
@@ -107,7 +111,7 @@ class Model:
 
             y = layer.backward(y, x)
 
-        print(self.check_error_norm(Y, self.layers[-1].output()))
+        return self.check_error_norm(Y, self.layers[-1].output())
 
     def save(self, path):
         with open(path, "wb") as fp:

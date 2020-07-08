@@ -66,10 +66,15 @@ def main():
     print(N.forward(train[3][0]).flatten())
 
 
-def get_X(a, b):
+def get_X(a: str, b: str):
     n = encN
 
     return np.array(merge_words(a, b, n)).reshape((n, 1))
+
+
+def get_Y(c: bool):
+
+    return np.array([[1.0], [0.0]]) if c else np.array([[0.0], [1.0]])
 
 
 def generate_training_data(word_cluster):
@@ -91,8 +96,8 @@ def generate_training_data(word_cluster):
                 same = True
                 break
 
-        X = np.array(merge_words(a, b, n)).reshape((n, 1))
-        Y = np.array([[1.0], [0.0]]) if same else np.array([[0.0], [1.0]])
+        X = get_X(a, b)
+        Y = get_Y(same)
         data.append((X, Y))
 
     return data
@@ -107,13 +112,19 @@ def word_main():
 
     data = generate_training_data(word_cluster)
 
-    N = create_model(load=True)
+    N: Model = create_model(load=True)
 
-    p, q = N.forward(get_X("მოსწავლე", "მოსწავლემ")).flatten().tolist()
+    X = get_X("ყიდვა", "გაყიდვა")
+
+    p, q = N.forward(X).flatten().tolist()
 
     print(p)
     print(q)
     print(p > q)
+
+    N.backward(X, get_Y(True))
+
+    # print(distance("მოსწავლე", "მოსწავლემ"))
 
     # for _ in range(800):
     #     for X, Y in data:
