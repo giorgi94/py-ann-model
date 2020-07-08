@@ -2,28 +2,76 @@ import os
 import sys
 import numpy as np
 
-from ann.models import Model
+from ann.models import Model, Layer
 from ann.activations import sigmoid
+
+from word import encode_word, merge_words
 
 
 np.set_printoptions(precision=16)
 
-N = Model()
+
+def main():
+    N = Model()
+
+    N.add_layer(Layer(inp=3, out=15))
+    N.add_layer(Layer(inp=15, out=25))
+    N.add_layer(Layer(inp=25, out=2))
+
+    N.load_random()
+
+    data = [
+        [[0, 1, 0], [0, 1]],
+        [[0, 0, 1], [1, 1]],
+        [[1, 0, 0], [1, 0]],
+        [[1, 0.5, 0], [1, 0.5]],
+    ]
+
+    train = [
+        [np.array(x).reshape((3, 1)), np.array(y).reshape((2, 1))] for x, y in data
+    ]
+
+    # X = np.array([[0.3], [0.7], [0.5]])
+    # Y = np.array([[0.247], [0.847], [0.5], [0.3]])
+
+    for _ in range(700):
+        for X, Y in train:
+            N.forward(X)
+            N.backward(X, Y)
+
+    print(N.forward(train[0][0]).flatten())
+    print(N.forward(train[1][0]).flatten())
+    print(N.forward(train[2][0]).flatten())
+    print(N.forward(train[3][0]).flatten())
 
 
-N.add_layer(inp=3, out=20, activation=sigmoid)
-N.add_layer(inp=20, out=10, activation=sigmoid)
-N.add_layer(inp=10, out=2, activation=sigmoid)
+def word_main():
+    n = 50
 
-N.load_random()
+    a = "კატლეტი"
+    b = "კოტლეტი"
 
-X = np.array([[0.3], [0.7], [0.5]])
-Y = np.array([[0.247], [0.847]])
+    X = np.array(merge_words(a, b, n)).reshape((n, 1))
+
+    N = Model()
+
+    N.add_layer(Layer(inp=n, out=15))
+    N.add_layer(Layer(inp=15, out=25))
+    N.add_layer(Layer(inp=25, out=2))
+
+    N.load_random()
+
+    train = [(X, np.array([[1.0], [0.0]]))]
+
+    for _ in range(100):
+        for X, Y in train:
+            N.forward(X)
+            N.backward(X, Y)
+
+    print(N.forward(X))
 
 
-for _ in range(700):
-    N.forward(X)
-    N.backward(X, Y)
+if __name__ == "__main__":
+    # main()
 
-
-print(N.forward(X))
+    word_main()
