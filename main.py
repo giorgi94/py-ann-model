@@ -54,7 +54,6 @@ def word_main():
 
     X = np.array(merge_words(a, b, n)).reshape((n, 1))
 
-    return
     # N = Model.load("dist/model.pkl")
 
     N = Model()

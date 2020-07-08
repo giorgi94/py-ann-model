@@ -1,3 +1,5 @@
+import json
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -59,12 +61,34 @@ def merge_words(a, b, n=50):
     return Y
 
 
+def distance(a, b, n=50):
+    A = np.array(encode_word(a, n))
+    B = np.array(encode_word(b, n))
+
+    return ((A - B) ** 2).sum() ** 0.5
+
+
+def cluster():
+    with open("dist/words.json", "r") as fp:
+        words = json.load(fp)
+        words = [w for w in words if len(w) > 2]
+
+    Clu = []
+
+    for a in words:
+        col = [a]
+        words.remove(a)
+        for b in words:
+            if distance(a, b) < 1:
+                col.append(b)
+                words.remove(b)
+        print(a)
+        Clu.append(col)
+
+    # with open("dist/cluster.json", "w") as fp:
+    #     json.dump(Clu, fp, ensure_ascii=False)
+
+
 if __name__ == "__main__":
-    words = ["კატლეტები", "საკატლეტე", "სანოვაგე"]
 
-    for w in words:
-        e = encode_word(w, 50)
-        print(len(e))
-    # plot_word(words[0])
-
-    # plt.show()
+    cluster()
