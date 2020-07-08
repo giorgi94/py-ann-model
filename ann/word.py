@@ -1,6 +1,5 @@
 import json
 
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -12,16 +11,6 @@ def tovec(w: str):
     ]
 
     return wvec
-
-
-def plot_word(word):
-
-    P = tovec(word)
-
-    X = [x for x, y in P]
-    Y = [y for x, y in P]
-
-    plt.plot(X, Y)
 
 
 def encode_word(w, n=50):
@@ -47,8 +36,8 @@ def merge_words(a, b, n=50):
 
     X = [encode_word(a, n), encode_word(b, n)]
 
-    print([round(x, 3) for x in X[0]])
-    print([round(x, 3) for x in X[1]])
+    # print([round(x, 3) for x in X[0]])
+    # print([round(x, 3) for x in X[1]])
     X = np.array(X).T.flatten()
 
     H = [0.5, 0.5]
@@ -82,7 +71,7 @@ def cluster():
             if distance(a, b) < 1:
                 col.append(b)
                 words.remove(b)
-        print(a)
+        # print(a)
         Clu.append(col)
 
     # with open("dist/cluster.json", "w") as fp:
@@ -90,5 +79,5 @@ def cluster():
 
 
 if __name__ == "__main__":
-
-    cluster()
+    pass
+    # cluster()

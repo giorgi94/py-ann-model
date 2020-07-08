@@ -1,15 +1,35 @@
 import os
-import sys
 import pickle
+import random
+import sys
+
 import numpy as np
 
-from ann.models import Model, Layer
 from ann.activations import sigmoid
-
-from word import encode_word, merge_words
-
+from ann.models import Layer, Model
+from ann.word import distance, encode_word, merge_words
 
 np.set_printoptions(precision=16)
+
+encN = 50
+
+
+def create_model(load=False):
+
+    n = encN
+
+    if load:
+        return Model.load("dist/model.pkl")
+
+    N = Model()
+
+    N.add_layer(Layer(inp=n, out=25))
+    N.add_layer(Layer(inp=25, out=25))
+    N.add_layer(Layer(inp=25, out=2))
+
+    N.load_random()
+
+    return N
 
 
 def main():
@@ -46,35 +66,65 @@ def main():
     print(N.forward(train[3][0]).flatten())
 
 
+def get_X(a, b):
+    n = encN
+
+    return np.array(merge_words(a, b, n)).reshape((n, 1))
+
+
+def generate_training_data(word_cluster):
+    n = encN
+
+    words = []
+
+    for c in word_cluster:
+        words.extend(c)
+
+    samples = [random.sample(words, 2) for _ in range(50)]
+
+    data = []
+
+    for a, b in samples:
+        same = False
+        for cluster in word_cluster:
+            if a in cluster and b in cluster:
+                same = True
+                break
+
+        X = np.array(merge_words(a, b, n)).reshape((n, 1))
+        Y = np.array([[1.0], [0.0]]) if same else np.array([[0.0], [1.0]])
+        data.append((X, Y))
+
+    return data
+
+
 def word_main():
-    n = 50
 
-    a = "კატლეტი"
-    b = "კოტლეტი"
+    word_cluster = [
+        ("ყიდვა", "ყიდულობს", "ყუდილუბდა", "საყიდელი", "გასაყიდი"),
+        ("სწავლა", "სწავლობს", "სასწავლო", "სწავლობდა"),
+    ]
 
-    X = np.array(merge_words(a, b, n)).reshape((n, 1))
+    data = generate_training_data(word_cluster)
 
-    # N = Model.load("dist/model.pkl")
+    N = create_model(load=True)
 
-    N = Model()
+    p, q = N.forward(get_X("მოსწავლე", "მოსწავლემ")).flatten().tolist()
 
-    N.add_layer(Layer(inp=n, out=15))
-    N.add_layer(Layer(inp=15, out=25))
-    N.add_layer(Layer(inp=25, out=2))
+    print(p)
+    print(q)
+    print(p > q)
 
-    N.load_random()
+    # for _ in range(800):
+    #     for X, Y in data:
+    #         N.forward(X)
+    #         N.backward(X, Y)
 
-    train = [(X, np.array([[1.0], [0.0]]))]
-
-    for _ in range(100):
-        for X, Y in train:
-            N.forward(X)
-            N.backward(X, Y)
-
-    print(N.forward(X))
+    # N.save("dist/model.pkl")
 
 
 if __name__ == "__main__":
+
     # main()
 
     word_main()
