@@ -44,6 +44,9 @@ def encode_word(w, n=50):
 def merge_words(a, b, n=50):
 
     X = [encode_word(a, n), encode_word(b, n)]
+
+    print([round(x, 3) for x in X[0]])
+    print([round(x, 3) for x in X[1]])
     X = np.array(X).T.flatten()
 
     H = [0.5, 0.5]

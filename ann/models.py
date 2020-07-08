@@ -30,6 +30,16 @@ class Layer:
         self.weight = 2 * np.random.random((n1, n0)) - 1
         self.bias = 2 * np.random.random((n1, 1)) - 1
 
+    def serialize(self):
+        return {
+            "layer": self.__class__.__name__,
+            "inp": self.inp,
+            "out": self.out,
+            "activation": self.activation.__name__,
+            "weight": weight,
+            "bias": bias,
+        }
+
     def output(self):
         if self.Z is None:
             return None
@@ -57,8 +67,6 @@ class Layer:
 
 class Model:
     def __init__(self):
-        self.biases: list = []
-        self.weights: list = []
         self.layers: list = []
 
     def add_layer(self, layout):
@@ -67,6 +75,9 @@ class Model:
     def load_random(self):
         for l in self.layers:
             l.load_random()
+
+    def save(self):
+        data = {""}
 
     def forward(self, X):
         x = X.copy()
@@ -97,3 +108,12 @@ class Model:
             y = layer.backward(y, x)
 
         print(self.check_error_norm(Y, self.layers[-1].output()))
+
+    def save(self, path):
+        with open(path, "wb") as fp:
+            pickle.dump(self, fp)
+
+    @staticmethod
+    def load(path):
+        with open(path, "rb") as fp:
+            return pickle.load(fp)

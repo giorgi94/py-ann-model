@@ -1,5 +1,6 @@
 import os
 import sys
+import pickle
 import numpy as np
 
 from ann.models import Model, Layer
@@ -52,6 +53,9 @@ def word_main():
     b = "კოტლეტი"
 
     X = np.array(merge_words(a, b, n)).reshape((n, 1))
+
+    return
+    # N = Model.load("dist/model.pkl")
 
     N = Model()
 
