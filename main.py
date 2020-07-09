@@ -7,7 +7,7 @@ import numpy as np
 
 from ann.activations import sigmoid
 from ann.models import Layer, Model
-from ann.word import distance, encode_word, merge_words
+from ann.word2vec import distance, encode_word, merge_words
 
 np.set_printoptions(precision=16)
 
