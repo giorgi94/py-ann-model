@@ -78,28 +78,30 @@ def main():
         ("სწავლა", "სწავლობს", "სასწავლო", "სწავლობდა"),
     ]
 
-    N: WordSimilarity = WordSimilarity.create_model(load="dist/model.pkl")
+    N: WordSimilarity = WordSimilarity.create_model(load="dist/word_model.pkl")
 
-    print(N)
+    # print(N)
 
-    data = N.generate_training_data(clusters)
+    # data = N.generate_training_data(clusters)
 
-    X = N.get_X("ყიდვა", "გაყიდვა")
+    # X = N.get_X("ყიდვა", "უოდულობდა")
 
-    p, q = N.validate(X)
+    # p, q = N.validate(X)
 
-    print(p)
-    print(q)
-    print(p > q)
+    # print(p)
+    # print(q)
+    # print(p > q)
 
-    # N.backward(X, get_Y(True))
+    # # N.backward(X, N.get_Y(True))
 
-    # print(distance("მოსწავლე", "მოსწავლემ"))
+    print(distance("მოსწავლე", "მოსწავლეთი"))
 
     # for _ in range(800):
     #     for X, Y in data:
     #         N.forward(X)
     #         N.backward(X, Y)
+
+    # N.save("dist/word_model.pkl")
 
 
 if __name__ == "__main__":

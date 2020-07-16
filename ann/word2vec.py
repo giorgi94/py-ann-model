@@ -1,6 +1,11 @@
 import json
+import re
 
 import numpy as np
+
+
+def remove_dublicates(word):
+    return re.sub(r"([ა-ჰ])\1{2,}", r"\1", word)
 
 
 def tovec(w: str):
