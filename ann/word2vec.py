@@ -56,6 +56,9 @@ def merge_words(a, b, n=50):
 
 
 def distance(a, b, n=50):
+    if len(a) == 1 or len(b) == 1:
+        return 0 if a == b else 10
+
     A = np.array(encode_word(a, n))
     B = np.array(encode_word(b, n))
 
