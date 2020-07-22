@@ -71,6 +71,18 @@ class WordSimilarity(Model):
     def validate(self, X):
         return self.forward(X).flatten().tolist()
 
+    def predict(self, a: str, b: str):
+        p, q = self.validate(self.get_X(a, b))
+        return round(100 * p / (p + q), 2)
+
+    def correction(self, a: str, b: str, c: bool):
+
+        X = self.get_X(a, b)
+        Y = self.get_Y(c)
+
+        self.forward(X)
+        return self.backward(X, Y)
+
 
 def main():
 

@@ -5,6 +5,8 @@ import json
 
 from ann.word2vec import remove_dublicates, distance
 
+from word_model import WordSimilarity
+
 
 def const_to_word_list(content):
     return re.findall(r"[ა-ჰ]+", content)
@@ -80,6 +82,8 @@ def order_words(words):
 
 
 def cluster_words():
+    N: WordSimilarity = WordSimilarity.create_model(load="dist/word_model.pkl")
+
     pseudo_clusters = load_data("word_pseudo_cluster")
     pseudo_clusters = random.sample(pseudo_clusters, 10)
 
@@ -96,12 +100,16 @@ def cluster_words():
 
     f = open("dist/data.txt", "a")
 
-    for (a, b) in pairs:
+    for i, (a, b) in enumerate(pairs):
         try:
-            s = input(f"{a} is {b}: ")
+            predict = N.predict(a, b)
+
+            s = input(f"{i+1}) {a} is {b} ({predict}%): ")
 
             if s == "0" or s == "1":
                 f.write(f"{a}, {b}, {s};\n")
+                N.correction(a, b, s == "1")
+
         except KeyboardInterrupt:
             print()
             break

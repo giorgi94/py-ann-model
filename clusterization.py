@@ -9,6 +9,28 @@ WORDS = []
 
 
 def get_data():
+    def modify_1(data):
+        s = random.sample(data, 50)
+        for (a, b, c) in s:
+            i = random.randint(0, len(b) - 1)
+
+            if random.randint(0, 5) > 2:
+                d = b[0:i] + b[i + 1 :]
+            else:
+                bc = chr(ord("ა") + random.randint(0, 32))
+                d = b[0:i] + bc + b[i + 1 :]
+
+            data.append((a, d, c))
+
+    def modify_2(data):
+        words = []
+
+        for (a, b, _) in data:
+            words.append(a)
+            words.append(b)
+        words = [(w, w, True) for w in set(words)]
+        data.extend(words)
+
     def clean(x):
         if len(x) != 3:
             return None
@@ -22,6 +44,8 @@ def get_data():
         data = [clean(f.split(",")) for f in fp.read().split(";")]
         data = [d for d in data if d is not None]
 
+    modify_1(data)
+    modify_2(data)
     return data
 
 
@@ -34,27 +58,23 @@ def main():
 
         for i in range(500):
             for a, b, c in random.sample(data, 20):
-                X = N.get_X(a, b)
-                Y = N.get_Y(c)
-
-                N.forward(X)
-                print(i, N.backward(X, Y))
+                e = N.correction(a, b, c)
+                print(i, e)
 
         N.save("dist/word_model.pkl")
 
     def check():
-        a, b = "ტელეფონმა", "სატელეფონო"
+        a, b = "კომპიუტერი", "კომპიუტერი"
 
-        X = N.get_X(a, b)
+        print(N.predict(a, b))
 
-        print(N.validate(X))
-
-    # train()
-    check()
+    train()
+    # check()
 
 
 if __name__ == "__main__":
 
     main()
 
-    # get_data()
+    # data = get_data()
+    # print(data)
