@@ -1,6 +1,7 @@
 import re
 import pickle
 import random
+import json
 
 from ann.word2vec import remove_dublicates, distance
 
@@ -65,16 +66,47 @@ def create_psudo_cluster_words():
     dump_data("word_pseudo_cluster", clusters)
 
 
+def order_words(words):
+    ordered = []
+
+    i = -1
+
+    for w in words:
+        i += 1
+        for v in words[i + 1 :]:
+            ordered.append((w, v))
+
+    return ordered
+
+
 def cluster_words():
     pseudo_clusters = load_data("word_pseudo_cluster")
+    pseudo_clusters = random.sample(pseudo_clusters, 10)
 
-    pcluster = pseudo_clusters[0]
+    pairs = []
 
-    words = [pcluster[0]] + list(pcluster[1])
+    for _, words in pseudo_clusters:
+        o = order_words(list(words))
+        random.shuffle(o)
+        pairs.extend(o[:10])
 
-    for _ in range(20):
-        a, b = random.sample(words, 2)
-        print(a, b, distance(a, b))
+    random.shuffle(pairs)
+
+    print(f"0 - no, 1 - yes; n: {len(pairs)}\n")
+
+    f = open("dist/data.txt", "a")
+
+    for (a, b) in pairs:
+        try:
+            s = input(f"{a} is {b}: ")
+
+            if s == "0" or s == "1":
+                f.write(f"{a}, {b}, {s};\n")
+        except KeyboardInterrupt:
+            print()
+            break
+
+    f.close()
 
 
 if __name__ == "__main__":

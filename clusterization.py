@@ -8,56 +8,53 @@ from word_model import WordSimilarity
 WORDS = []
 
 
-def read_words():
-    global WORDS
-    with open("textclassifier/data/words.pkl", "rb") as fp:
-        WORDS = pickle.load(fp)
+def get_data():
+    def clean(x):
+        if len(x) != 3:
+            return None
+        a, b, c = x
+        a = a.strip()
+        b = b.strip()
+        c = c.strip() == "1"
+        return a, b, c
 
+    with open("dist/data.txt", "r") as fp:
+        data = [clean(f.split(",")) for f in fp.read().split(";")]
+        data = [d for d in data if d is not None]
 
-def generate_psudo_clusters():
-    words = WORDS.copy()
-
-    # words = words[: len(words) // 2 + 1]
-    words = words[len(words) // 2 :]
-
-    clusters = []
-
-    for w in words:
-        print(len(words))
-        clu = None
-
-        if len(w) > 4:
-            clu = w[:4]
-        else:
-            continue
-
-        clus = [w for w in words if clu in w]
-        for c in clus:
-            words.remove(c)
-        clusters.append((clu, set(clus)))
-
-    print("Clusters:")
-    print(len(clusters))
-
-    with open("dist/clusters_2.pkl", "wb") as fp:
-        pickle.dump(clusters, fp)
-
-    # words = [w for w in WORDS if "საზო" in w]
-
-    # for w in words:
-    #     print(w)
+    return data
 
 
 def main():
-    with open("dist/clusters.pkl", "rb") as fp:
-        clusters = pickle.load(fp)
+    N: WordSimilarity = WordSimilarity.create_model(load="dist/word_model.pkl")
 
-    print(clusters[0])
-    print(clusters[1])
-    print(clusters[2])
+    def train():
+
+        data = get_data()
+
+        for i in range(500):
+            for a, b, c in random.sample(data, 20):
+                X = N.get_X(a, b)
+                Y = N.get_Y(c)
+
+                N.forward(X)
+                print(i, N.backward(X, Y))
+
+        N.save("dist/word_model.pkl")
+
+    def check():
+        a, b = "ტელეფონმა", "სატელეფონო"
+
+        X = N.get_X(a, b)
+
+        print(N.validate(X))
+
+    # train()
+    check()
 
 
 if __name__ == "__main__":
-    read_words()
-    generate_psudo_clusters()
-    # main()
+
+    main()
+
+    # get_data()

@@ -26,6 +26,7 @@ class WordSimilarity(Model):
 
         N.add_layer(Layer(inp=n, out=25))
         N.add_layer(Layer(inp=25, out=25))
+        N.add_layer(Layer(inp=25, out=25))
         N.add_layer(Layer(inp=25, out=2))
 
         N.load_random()
