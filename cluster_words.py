@@ -1,11 +1,11 @@
-import re
+import json
 import pickle
 import random
-import json
+import re
 
-from ann.word2vec import remove_dublicates, distance
+from ann_words.models import WordSimilarity
 
-from word_model import WordSimilarity
+from ann_words.word2vec import distance, remove_dublicates
 
 
 def const_to_word_list(content):

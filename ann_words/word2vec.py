@@ -5,7 +5,11 @@ import numpy as np
 
 
 def remove_dublicates(word):
-    return re.sub(r"([ა-ჰ])\1{2,}", r"\1", word)
+    return re.sub(r"(\w)\1{1,}", r"\1", word)
+
+
+def get_word_list(text):
+    return [remove_dublicates(t.lower()) for t in re.findall(r"\w+", text)]
 
 
 def tovec(w: str):
