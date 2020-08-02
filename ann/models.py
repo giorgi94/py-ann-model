@@ -10,7 +10,7 @@ from .activations import sigmoid
 
 class Layer:
 
-    learning_rate = 0.5
+    learning_rate = 0.25
 
     def __init__(self, inp, out, activation=sigmoid):
         self.inp: int = inp

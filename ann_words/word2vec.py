@@ -4,12 +4,27 @@ import re
 import numpy as np
 
 
+def clean_stopwords(wlist):
+    wl = []
+
+    for w in wlist:
+        v = remove_dublicates(w)
+        if len(v) > 3 and v not in wl:
+            wl.append(v)
+    return wl
+
+
+def striptags(text):
+    regex = r"(<([^>]+)>)"
+    return re.sub(regex, "", text)
+
+
 def remove_dublicates(word):
     return re.sub(r"(\w)\1{1,}", r"\1", word)
 
 
 def get_word_list(text):
-    return [remove_dublicates(t.lower()) for t in re.findall(r"\w+", text)]
+    return [remove_dublicates(t.lower()) for t in re.findall(r"\w+", striptags(text))]
 
 
 def tovec(w: str):

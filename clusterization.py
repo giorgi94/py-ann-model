@@ -1,11 +1,16 @@
 import pickle
 import random
 
+from os.path import abspath, dirname, join
 
-from word_model import WordSimilarity
+
+from ann_words.models import WordSimilarity
 
 
 WORDS = []
+
+base_dir = dirname(abspath(__file__))
+dist_dir = join(base_dir, "dist")
 
 
 def get_data():
@@ -49,8 +54,34 @@ def get_data():
     return data
 
 
+def get_data_words():
+    def modify(data: list):
+        ndata = []
+
+        for (a, b, c) in data:
+            i = random.randint(0, len(b) - 1)
+
+            if random.randint(0, 5) > 2:
+                d = b[0:i] + b[i + 1 :]
+            else:
+                bc = chr(ord("ა") + random.randint(0, 32))
+                d = b[0:i] + bc + b[i + 1 :]
+            ndata.append((a, d, c))
+
+        data.extend(ndata)
+
+    with open("dist/ambebi_words.pkl", "rb") as fp:
+        data = pickle.load(fp)
+        data = [(w, w, True) for w in data if isinstance(w, str) and len(w) > 2]
+
+    modify(data)
+    return data
+
+
 def main():
-    N: WordSimilarity = WordSimilarity.create_model(load="dist/word_model.pkl")
+    model_path = join(dist_dir, "word_model.pkl")
+
+    N: WordSimilarity = WordSimilarity.create_model(load=model_path)
 
     def train():
 
@@ -61,7 +92,7 @@ def main():
                 e = N.correction(a, b, c)
                 print(i, e)
 
-        N.save("dist/word_model.pkl")
+        N.save(model_path)
 
     def check():
         a, b = "კომპიუტერი", "კომპიუტერი"
@@ -76,5 +107,5 @@ if __name__ == "__main__":
 
     main()
 
-    # data = get_data()
-    # print(data)
+    # data = get_data_words()
+    # print(len(data))
