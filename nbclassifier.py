@@ -6,10 +6,48 @@ import random
 
 from ann_words.word2vec import get_word_list, remove_dublicates, clean_stopwords
 
-from ann_words.naive_bayes_classifier import NaiveBayesClassification
+from ann_words.naive_bayes_classifier import NaiveBayesClassification, test
+
 
 base_dir = "nbc_data/texts"
 weights_dir = "nbc_data/weights"
+
+
+def train():
+    with open(join(base_dir, "data.json"), "r") as fp:
+        data = json.load(fp)
+
+    nbc = NaiveBayesClassification()
+    nbc.load("trained.json")
+
+    total = len(data)
+
+    for i, (words, label) in enumerate(data):
+        print(i + 1, "/", total)
+        nbc.parse_text(words, "+" if label else "-")
+
+    nbc.train()
+    nbc.dump("trained.json")
+
+
+def main():
+    nbc = NaiveBayesClassification()
+    nbc.load("trained.json")
+
+    text = """
+    ეკა გეთანხმები ასეთი პატრონები უნდა დაისაჯაონ აუცილებლად , მაგრამ რა ღა დროს როცა ადამიანი დაშავდება მერე??? ამიტომ უასაბელოდ და ნამორდნიკის გარეშე ძაღლები არ უნდა გამოყავდეთ გარეთ
+    """
+
+    print(nbc.classify(text))
+
+
+if __name__ == "__main__":
+    main()
+    # train()
+
+
+"""
+
 
 
 def get_data():
@@ -81,3 +119,4 @@ def main():
 if __name__ == "__main__":
     # train(5)
     main()
+"""

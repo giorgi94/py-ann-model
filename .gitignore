@@ -4,6 +4,8 @@
 *.sqlite3
 *.egg-info
 
+.vscode/
+
 dist/
 build/
 
