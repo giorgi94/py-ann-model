@@ -3,15 +3,24 @@ import re
 
 import numpy as np
 
+from os.path import abspath, dirname, join
 
-def clean_stopwords(wlist):
-    wl = []
 
-    for w in wlist:
-        v = remove_dublicates(w)
-        if len(v) > 3 and v not in wl:
-            wl.append(v)
-    return wl
+base_dir = dirname(abspath(__file__))
+
+
+def remove_dublicates(word):
+    w = re.sub(r"(\w)\1{1,}", r"\1", word)
+    w = re.sub(r"\s{2,}", " ", w)
+    return w
+
+
+def get_stopwords():
+    with open(join(base_dir, "stopwords.txt"), "r") as fp:
+        return [remove_dublicates(w.strip()) for w in fp.readlines() if w.strip()]
+
+
+# stopwords = get_stopwords()
 
 
 def striptags(text):
@@ -19,12 +28,21 @@ def striptags(text):
     return re.sub(regex, "", text)
 
 
-def remove_dublicates(word):
-    return re.sub(r"(\w)\1{1,}", r"\1", word)
+def clean_stopwords(text):
+
+    for s in stopwords:
+        reg = re.compile(f"\\b{s}\\b")
+        text = reg.sub("", text)
+
+    return text
 
 
 def get_word_list(text):
-    return [remove_dublicates(t.lower()) for t in re.findall(r"\w+", striptags(text))]
+    text = striptags(text)
+    text = remove_dublicates(text)
+    # text = clean_stopwords(text)
+
+    return [t.lower() for t in re.findall(r"\w+", text)]
 
 
 def tovec(w: str):
