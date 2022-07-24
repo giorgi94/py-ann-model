@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 import numpy as np
 
 
@@ -9,69 +7,112 @@ def sigmoid(x: float, der: bool = False) -> float:
     return 1 / (1 + np.exp(-x))
 
 
-@dataclass
+class SigmoidActivation:
+    def __call__(self, x):
+        return sigmoid(x)
+
+    def derivative(self, x):
+        return np.diag(sigmoid(x, True).flatten())
+
+
 class LinearLayer:
 
-    __slots__ = ("weight", "bias")
+    __slots__ = ("weight", "bias", "activation", "learning_rate")
 
-    weight: np.ndarray
-    bias: np.ndarray
+    def __init__(self, weight, bias, learning_rate) -> None:
+        self.weight: np.ndarray = weight
+        self.bias: np.ndarray = bias
+
+        self.learning_rate: float = learning_rate
+        self.activation = SigmoidActivation()
 
     def calc(self, x: np.ndarray) -> np.ndarray:
         return self.weight.dot(x) + self.bias
 
+    def forward(self, x: np.ndarray):
+        return self.activation(self.calc(x))
 
-x = np.array([[0.3, 0.1, 0.4]], dtype=np.float32).T
-y = np.array([[0.8341, 0.9421]], dtype=np.float32).T
+    def error(self, y_predicted: np.ndarray, y: np.ndarray) -> float:
 
-x.flags.writeable = False
-y.flags.writeable = False
+        return ((y_predicted - y) ** 2).sum() / 2
 
+    def backward(self, x: np.ndarray, y: np.ndarray, x_correction: bool = False):
 
-def train():
-    weight = np.random.rand(2, 3)
-    bias = np.random.rand(2, 1)
+        z = self.calc(x)
 
-    learning_rate = 0.05
-
-    epoch_size = 5000
-
-    for epoch in range(epoch_size):
-
-        z = weight.dot(x) + bias
-
-        y_predicted = sigmoid(z)
+        y_predicted = self.activation(z)
 
         delta = y_predicted - y
 
-        s = np.diag(sigmoid(z, True).flatten())
+        der_act = self.activation.derivative(z)
 
-        error = (delta**2).sum() / 2
+        der_b = der_act.dot(delta)
+        der_w = der_b.dot(x.T)
 
-        # if (epoch + 1) % 10 == 0:
-        #     print("step", epoch, "error:", error)
+        if x_correction:
+            der_x = self.weight.T.dot(der_b)
 
-        if epoch != epoch_size - 1:
+            x -= self.learning_rate * der_x
 
-            der_b = s.dot(delta)
-            der_w = der_b.dot(x.T)
-
-            weight -= learning_rate * der_w
-            bias -= learning_rate * der_b
-
-    return weight, bias
+        self.weight -= self.learning_rate * der_w
+        self.bias -= self.learning_rate * der_b
 
 
-def calc(weight, bias):
+x1 = np.array([[0.389, 0.134, 0.134]], dtype=np.float32).T
+y1 = np.array([[0.8341, 0.9421]], dtype=np.float32).T
 
-    print(sigmoid(weight.dot(x) + bias).tolist())
-    print(y.tolist())
+x1.flags.writeable = False
+y1.flags.writeable = False
+
+x2 = np.array([[0.51, 0.823, 0.6]], dtype=np.float32).T
+y2 = np.array([[0.134, 0.5756]], dtype=np.float32).T
+
+x2.flags.writeable = False
+y2.flags.writeable = False
 
 
-weight, bias = train()
+def train():
+    weight_1 = np.random.rand(10, 3)
+    bias_1 = np.random.rand(10, 1)
 
-print("answer", weight.tolist(), bias.tolist())
+    weight_2 = np.random.rand(2, 10)
+    bias_2 = np.random.rand(2, 1)
 
-print("result:")
+    learning_rate = 0.5
 
-calc(weight, bias)
+    epoch_size = 50_000
+
+    layer_1 = LinearLayer(weight_1, bias_1, learning_rate)
+    layer_2 = LinearLayer(weight_2, bias_2, learning_rate)
+
+    for epoch in range(epoch_size):
+        if epoch % 2 == 0:
+            p1 = layer_1.forward(x1)
+            layer_2.backward(p1, y1, True)
+            layer_1.backward(x1, p1)
+        else:
+            p1 = layer_1.forward(x2)
+            layer_2.backward(p1, y2, True)
+            layer_1.backward(x2, p1)
+
+    print(layer_2.forward(layer_1.forward(x1)).tolist())
+    print(y1.tolist())
+
+    print()
+
+    print(layer_2.forward(layer_1.forward(x2)).tolist())
+    print(y2.tolist())
+
+    # y_1_predicted = layer.forward(x1)
+    # y_2_predicted = layer.forward(x2)
+
+    # print("error:")
+    # print(layer.error(y_1_predicted, y1))
+    # print(layer.error(y_2_predicted, y2))
+
+    # print("answer:")
+    # print(weight.tolist())
+    # print(bias.tolist())
+
+
+train()
