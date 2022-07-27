@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 
 def sigmoid(x: float, der: bool = False) -> float:
@@ -58,61 +59,86 @@ class LinearLayer:
         self.bias -= self.learning_rate * der_b
 
 
-x1 = np.array([[0.389, 0.134, 0.134]], dtype=np.float32).T
-y1 = np.array([[0.8341, 0.9421]], dtype=np.float32).T
+class BaseModel:
+    def __init__(self, params: list, train: list) -> None:
 
-x1.flags.writeable = False
-y1.flags.writeable = False
+        self.train_X = [self.__to_vector(x) for x, _ in train]
+        self.train_Y = [self.__to_vector(y) for _, y in train]
 
-x2 = np.array([[0.51, 0.823, 0.6]], dtype=np.float32).T
-y2 = np.array([[0.134, 0.5756]], dtype=np.float32).T
+        self.params = params
 
-x2.flags.writeable = False
-y2.flags.writeable = False
+        self.layers = []
+
+    @staticmethod
+    def __to_vector(x: list) -> np.ndarray:
+        a = np.array([x], dtype=np.float32).T
+        a.flags.writeable = False
+        return a
+
+    @staticmethod
+    def generate_random_params(*args):
+        dims = zip(args[1:], args[:-1])
+        return [(np.random.rand(i, j), np.random.rand(i, 1)) for i, j in dims]
+
+    def predict(self, x):
+        pred = x
+
+        for layer in self.layers:
+            pred = layer.forward(pred)
+
+        return pred
+
+    def train(self):
+
+        epoch_size = 10_000
+
+        for epoch in range(epoch_size):
+
+            ind = random.randint(0, len(self.train_X) - 1)
+
+            x = self.train_X[ind]
+            y = self.train_Y[ind]
+
+            predictions = [x]
+
+            for layer in self.layers:
+                predictions.append(layer.forward(predictions[-1]))
+
+            predictions.reverse()
+
+            pred_len = len(self.layers)
+
+            need = y
+
+            for i, layer in enumerate(self.layers[::-1]):
+                layer.backward(predictions[i + 1], need, i != pred_len - 1)
+                need = predictions[i + 1]
 
 
-def train():
-    weight_1 = np.random.rand(10, 3)
-    bias_1 = np.random.rand(10, 1)
+class Model(BaseModel):
+    pass
 
-    weight_2 = np.random.rand(2, 10)
-    bias_2 = np.random.rand(2, 1)
 
-    learning_rate = 0.5
+train = [
+    ([0.389, 0.134, 0.134], [0.8341, 0.9421]),
+    ([0.51, 0.823, 0.6], [0.134, 0.5756]),
+    ([0.81, 0.323, 0.76], [0.934, 0.0756]),
+]
 
-    epoch_size = 50_000
 
-    layer_1 = LinearLayer(weight_1, bias_1, learning_rate)
-    layer_2 = LinearLayer(weight_2, bias_2, learning_rate)
+params = Model.generate_random_params(3, 5, 2)
 
-    for epoch in range(epoch_size):
-        if epoch % 2 == 0:
-            p1 = layer_1.forward(x1)
-            layer_2.backward(p1, y1, True)
-            layer_1.backward(x1, p1)
-        else:
-            p1 = layer_1.forward(x2)
-            layer_2.backward(p1, y2, True)
-            layer_1.backward(x2, p1)
+model = Model(params, train)
 
-    print(layer_2.forward(layer_1.forward(x1)).tolist())
-    print(y1.tolist())
 
+learning_rate = 0.5
+
+model.layers.extend([LinearLayer(w, b, learning_rate) for w, b in params])
+
+
+model.train()
+
+for X, Y in train:
+    print(model.predict(np.array([X]).T).flatten())
+    print(Y)
     print()
-
-    print(layer_2.forward(layer_1.forward(x2)).tolist())
-    print(y2.tolist())
-
-    # y_1_predicted = layer.forward(x1)
-    # y_2_predicted = layer.forward(x2)
-
-    # print("error:")
-    # print(layer.error(y_1_predicted, y1))
-    # print(layer.error(y_2_predicted, y2))
-
-    # print("answer:")
-    # print(weight.tolist())
-    # print(bias.tolist())
-
-
-train()
