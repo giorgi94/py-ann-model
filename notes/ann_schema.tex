@@ -1,0 +1,50 @@
+\begin{center}
+\begin{tikzpicture}[shorten >=1pt,->,draw=black!50, node distance=\layersep]
+        \tikzstyle{every pin edge}=[<-,shorten <=1pt]
+        \tikzstyle{neuron}=[circle,fill=black!25,minimum size=17pt,inner sep=0pt]
+        \tikzstyle{input neuron}=[neuron, fill=green!50];
+        \tikzstyle{output neuron}=[neuron, fill=red!50];
+        \tikzstyle{hidden neuron}=[neuron, fill=blue!50];
+        \tikzstyle{hidden2 neuron}=[neuron, fill=blue!80];
+        \tikzstyle{annot} = [text width=4em, text centered]
+
+        % Draw the input layer nodes
+        \node[input neuron, pin=left:$x_1$] (I-1) at (0,-1) {};
+        \node[input neuron, pin=left:$x_2$] (I-2) at (0,-2) {};
+        \node[input neuron, pin=left:$x_3$] (I-3) at (0,-3) {};
+
+        % Draw the hidden layer nodes
+        \foreach \name / \y in {1,...,4}
+            \path[yshift=0.5cm]
+                node[hidden neuron] (H-\name) at (\layersep,-\y cm) {};
+
+        \foreach \name / \y in {1,...,4}
+            \path[yshift=0.5cm]
+                    node[hidden2 neuron] (H2-\name) at (2*\layersep,-\y cm) {};
+
+        \foreach \name / \y in {1,...,3}
+            \path
+                node[output neuron, pin={[pin edge={->}]right:$\hat{y}_\name$}] (O-\name) at (3*\layersep,-\y cm) {};
+
+
+        % Connect every node in the input layer with every node in the
+        \foreach \source in {1,...,3}
+            \foreach \dest in {1,...,4}
+                \path (I-\source) edge (H-\dest);
+
+        \foreach \source in {1,...,4}
+            \foreach \dest in {1,...,4}
+                \path (H-\source) edge (H2-\dest);
+
+        \foreach \source in {1,...,4}
+            \foreach \dest in {1,...,3}
+                    \path (H2-\source) edge (O-\dest);
+
+        % Annotate the layers
+        \node[annot,above of=I-1, node distance=1cm] (il) {Input layer};
+        \node[annot,above of=H-1, node distance=1cm] (hl) {Hidden layer 1};
+        \node[annot,above of=H2-1, node distance=1cm] (h2) {Hidden layer 2};
+        \node[annot,above of=O-1, node distance=1cm] (o1) {Output layer};
+
+\end{tikzpicture}
+\end{center}
